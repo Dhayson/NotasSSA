@@ -135,7 +135,7 @@ namespace NotasSSA
             WriteLine();
             WriteLine("perfil do aluno:");
             WriteLine("quantidade de alunos com nota igual ou acima: " + num);
-            WriteLine($"{aluno.inscrição} {aluno.nome} {aluno.notaSoma}");
+            WriteLine($"{aluno.inscrição} {aluno.nome} \nNota Soma: {aluno.notaSoma}");
             WriteLine($"Nota SSA1: {aluno.notaSSA1}");
             WriteLine($"Nota SSA2: {aluno.notaSSA2}");
             ReadKey(false);
