@@ -9,8 +9,20 @@ namespace NotasSSA
 {
     class Program
     {
+        class Candidato
+        {
+            public int inscrição = 0;
+            public string nome = string.Empty;
+            public float notaSSA1 = 0;
+            public float notaSSA2 = 0;
+            public float notaSoma = 0;
+        }
         static void Main()
         {
+            Write("Escreva no nome de um aluno: ");
+            Candidato aluno = new() { nome = ReadLine().ToUpperInvariant() };
+            WriteLine();
+
             string SSA2020 = "Notas SSA1_2020.txt";
             string SSA2021 = "Notas SSA2_2021.txt";
             string path = Path.GetFullPath("NotasSSA.exe");
@@ -18,57 +30,66 @@ namespace NotasSSA
             IList<string> NotasSSA2020 = Read(path + SSA2020, '1');
             IList<string> NotasSSA2021 = Read(path + SSA2021, '2');
 
-            IList<candidato> Candidatos1 = new Collection<candidato>();
-            IList<candidato> Candidatos2 = new Collection<candidato>();
-            IList<candidato> CandidatosSoma = new Collection<candidato>();
+            IList<Candidato> CandidatosSSA1 = new Collection<Candidato>();
+            IList<Candidato> CandidatosSSA2 = new Collection<Candidato>();
+            IList<Candidato> CandidatosSoma = new Collection<Candidato>();
 
             foreach (string s in NotasSSA2020)
             {
-                candidato c = new();
+                Candidato c = new();
                 string[] dados = s.Split();
                 c.inscrição = int.Parse(dados[0]);
                 c.nome = Remove1stWord(RemoveLastWord(s)).Trim();
-                c.nota = float.Parse(GetLastWord(s));
-                Candidatos1.Add(c);
+                c.notaSSA1 = float.Parse(GetLastWord(s));
+                CandidatosSSA1.Add(c);
             }
 
             foreach (string s in NotasSSA2021)
             {
-                candidato c = new();
+                Candidato c = new();
                 string[] dados = s.Split();
                 c.inscrição = int.Parse(dados[0]);
                 c.nome = Remove1stWord(RemoveLastWord(s)).Trim();
-                c.nota = float.Parse(GetLastWord(s));
-                Candidatos2.Add(c);
+                c.notaSSA2 = float.Parse(GetLastWord(s));
+                CandidatosSSA2.Add(c);
             }
 
             float média1 = 0;
-            foreach (var c in Candidatos1)
+            float notamin1 = 100f;
+            foreach (Candidato c in CandidatosSSA1)
             {
-                média1 += c.nota;
+                média1 += c.notaSSA1;
+                if (c.notaSSA1 < notamin1) notamin1 = c.notaSSA1;
             }
-            média1 = média1 / Candidatos1.Count;
-            WriteLine(média1);
+            média1 /= CandidatosSSA1.Count;
+            WriteLine("menor nota do ssa1: "+ notamin1);
+            WriteLine("média do ssa1: "+ média1);
+            WriteLine();
 
             float média2 = 0;
-            foreach (var c in Candidatos2)
+            float notamin2 = 100f;
+            foreach (Candidato c in CandidatosSSA2)
             {
-                média2 += c.nota;
+                média2 += c.notaSSA2;
+                if (c.notaSSA2 < notamin2) notamin2 = c.notaSSA2;
             }
-            média2 = média2 / Candidatos2.Count;
-            WriteLine(média2);
+            média2 /= CandidatosSSA2.Count;
+            WriteLine("menor nota do ssa2: "+ notamin2);
+            WriteLine("média do ssa2: "+ média2);
+            WriteLine();
 
-            int i = 0;
-            foreach(var c in Candidatos1)
+            int i = 1;
+            foreach(Candidato c in CandidatosSSA1)
             {
-                foreach(var d in Candidatos2)
+                foreach(Candidato d in CandidatosSSA2)
                 {
                     if(c.nome == d.nome)
                     {
-                        candidato e = new();
+                        Candidato e = new();
                         e.inscrição = i;
+                        i++;
                         e.nome = c.nome;
-                        e.nota = c.nota + d.nota;
+                        e.notaSoma = c.notaSSA1 + d.notaSSA2;
                         CandidatosSoma.Add(e);
                     }
                 }
@@ -76,17 +97,47 @@ namespace NotasSSA
 
             float médiaS = 0;
             int num = 0;
-            foreach (var e in CandidatosSoma)
+            float notaminS = 100;
+
+            foreach (Candidato e in CandidatosSoma)
             {
-                médiaS += e.nota;
-                if (e.nota >= 158.5f)
+                médiaS += e.notaSoma;
+                if (e.notaSoma < notaminS) notaminS = e.notaSoma;
+                if (e.nome == aluno.nome) aluno = e;
+            }
+            médiaS /= CandidatosSoma.Count;
+
+            foreach (Candidato e in CandidatosSoma)
+            {
+                if (e.notaSoma >= aluno.notaSoma)
                 {
                     num++;
                 }
             }
-            médiaS = médiaS / CandidatosSoma.Count;
-            WriteLine(médiaS);
-            WriteLine(num);
+
+            foreach (Candidato c in CandidatosSSA1)
+            {
+                if (c.nome == aluno.nome)
+                {
+                    aluno.notaSSA1 = c.notaSSA1;
+                }
+            }
+
+            foreach (Candidato c in CandidatosSSA2)
+            {
+                if (c.nome == aluno.nome)
+                {
+                    aluno.notaSSA2 = c.notaSSA2;
+                }
+            }
+            WriteLine("menor nota da soma: "+ notaminS);
+            WriteLine("média da soma: "+ médiaS);
+            WriteLine();
+            WriteLine("perfil do aluno:");
+            WriteLine("quantidade de alunos com nota igual ou acima: " + num);
+            WriteLine($"{aluno.inscrição} {aluno.nome} {aluno.notaSoma}");
+            WriteLine($"Nota SSA1: {aluno.notaSSA1}");
+            WriteLine($"Nota SSA2: {aluno.notaSSA2}");
             ReadKey(false);
         }
 
@@ -110,12 +161,5 @@ namespace NotasSSA
                 }
             }
         }
-    }
-
-    class candidato
-    {
-        public int inscrição = 0;
-        public string nome = string.Empty;
-        public float nota = 0;
     }
 }
